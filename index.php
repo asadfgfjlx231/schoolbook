@@ -5,13 +5,25 @@ include_once("db.php");
 include_once("html.php");
 include_once("request.php");
 htmlHead();
-gradeForm(); 
-insertGrade(); 
 
+updateGrade();
+ grade();
+ insertGrade();
+ deleteGrade();
+ insertStudent();
+ updateStudentName();
+ deleteStudent();
+ insertClass();
+ updateClassName();
+insertSubject();
+updateSubject();
+deleteSubject();
 menu();
 formDisplay();
 year();
 displaydata();
 displaymessage($servername, $username,$password,$generatedNames);
 htmlEnd();
+
+
 
