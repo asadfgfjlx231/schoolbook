@@ -81,7 +81,7 @@ function createGradesTable($conn) {
       `student_id` INT NULL,
       `subject_id` INT NULL,
       `grade` INT NULL,
-      `date` DATE NULL,
+      `date` VARCHAR(50) NULL,
       PRIMARY KEY (`id`))
     ENGINE = InnoDB;";
    
@@ -256,63 +256,46 @@ $generatedNames = getName();
 
 
 function insertGradesIntoDatabase() {
-    
     $host = 'localhost';
     $dbname = 'school';
     $username = 'root';
     $password = '';
 
     try {
-
         $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
         $sql = "INSERT INTO grades (student_id, subject_id, grade, date) VALUES (:student_id, :subject_id, :grade, :date)";
-
-
         $stmt = $pdo->prepare($sql);
 
-
-        $fixedDate = '1984-01-24';
-
-
-        $studentIds = [];
         for ($studentId = 1; $studentId <= 180; $studentId++) {
-            
-                $studentIds[] = $studentId;
-            
-        }
-        
+            $year = getStudentYear($studentId); 
+           
+            $jegyszam = rand(3, 5);
+            for ($i = 1; $i <= $jegyszam; $i++) {
+                for ($subjectId = 1; $subjectId <= 8; $subjectId++) {
+                    $randomGrade = rand(1, 5);
+                    $month = str_pad(rand(1, 12), 2, "0", STR_PAD_LEFT);
+                    $day = str_pad(rand(1, 28), 2, "0", STR_PAD_LEFT);
+                    $Date = "$year-$month-$day";
 
-        
-        foreach ($studentIds as $studentId) {
-            $jegyszam=rand(3, 5);
-            for ($i = 1; $i <= $jegyszam; $i++){
-
-            for ($subjectId = 1; $subjectId <= 8; $subjectId++) {
-                
-                $randomGrade = rand(1, 5);
-
-                
-                $stmt->execute([
-                    ':student_id' => $studentId,
-                    ':subject_id' => $subjectId,
-                    ':grade' => $randomGrade,
-                    ':date' => $fixedDate,
-                ]);
+                    $stmt->execute([
+                        ':student_id' => $studentId,
+                        ':subject_id' => $subjectId,
+                        ':grade' => $randomGrade,
+                        ':date' => $Date,
+                    ]);
+                }
             }
-        }
         }
 
         echo "A jegyek sikeresen feltöltve az adatbázisba.";
-        
+
     } catch (PDOException $e) {
-       
         echo "Hiba történt: " . $e->getMessage();
     }
-    
-
 }
+
 function lekerdezesToTomb($sql) {
     $eredmenyTomb = [];
     $servername = "localhost";
@@ -358,6 +341,38 @@ function executeQuery($sql) {
 
     return $result;
 }
+function getStudentYear($student_id) {
+    $servername = "localhost";
+    $username = "root";
+    $password = "";
+    $dbname = "school";
+
+
+    $conn = mysqli_connect($servername, $username, $password, $dbname);
+
+    if (!$conn) {
+        die("Kapcsolati hiba: " . mysqli_connect_error());
+    }
+
+
+    $sql = "SELECT c.Year FROM students s 
+            JOIN classes c ON s.Class_id = c.id 
+            WHERE s.id = '$student_id' 
+            LIMIT 1;";
+
+    $result = mysqli_query($conn, $sql);
+    $year = null;
+
+    if ($row = mysqli_fetch_assoc($result)) {
+        $year = $row['Year']; 
+    }
+
+    mysqli_free_result($result);
+    mysqli_close($conn);
+
+    return $year; 
+}
+
 
 
 
